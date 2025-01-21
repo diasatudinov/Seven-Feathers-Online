@@ -1,12 +1,22 @@
+//
+//  TeamViewModel.swift
+//  Seven Feathers Online
+//
+//  Created by Dias Atudinov on 20.01.2025.
+//
+
+
 
 import SwiftUI
 
 class TeamViewModel: ObservableObject {
     @Published var teams: [Team] = [
-        Team(icon: "avatar1", selectedIcon: "avatar1S", name: ""),
-        Team(icon: "avatar2", selectedIcon: "avatar2S", name: ""),
-        Team(icon: "avatar3", selectedIcon: "avatar3S", name: ""),
-        Team(icon: "avatar4", selectedIcon: "avatar4S", name: "")
+        Team(icon: "avatar1", name: ""),
+        Team(icon: "avatar2", name: ""),
+        Team(icon: "avatar3", name: ""),
+        Team(icon: "avatar4", name: ""),
+        Team(icon: "avatar5", name: ""),
+        Team(icon: "avatar6", name: "")
         
     ]
     
@@ -42,5 +52,9 @@ class TeamViewModel: ObservableObject {
         let otherTeams = teams.filter { $0.name != currentTeam?.name }
         
         return otherTeams.randomElement()
+    }
+    
+    func currenTeamNil() {
+        currentTeam = nil
     }
 }

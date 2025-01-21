@@ -1,3 +1,11 @@
+//
+//  TeamsView.swift
+//  Seven Feathers Online
+//
+//  Created by Dias Atudinov on 20.01.2025.
+//
+
+
 import SwiftUI
 
 struct TeamsView: View {
@@ -6,104 +14,102 @@ struct TeamsView: View {
     @State private var currentTab: Int = 0
     @State private var currentTeam: Team?
     @State private var nickname: String = ""
+    
+    let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+    
     var body: some View {
         GeometryReader { geometry in
             
-            if geometry.size.width < geometry.size.height {
-                ZStack {
+                HStack {
+                    Spacer()
                     VStack {
                         Spacer()
-                        HStack {
-                            Spacer()
-                            ForEach(viewModel.teams.indices, id: \.self) { index in
-                                
-                                Button {
-                                    currentTeam = viewModel.teams[index]
-                                } label: {
-                                    Image(viewModel.teams[index] == currentTeam ? viewModel.teams[index].selectedIcon : viewModel.teams[index].icon)
-                                        .resizable()
-                                        .foregroundColor(.black)
-                                        .scaledToFit()
-                                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 104 * 1.8 : 104)
-                                }
-                            }
-                            .frame(width: DeviceInfo.shared.deviceType == .pad ? 160 : 80)
-                            Spacer()
-                        }.padding(.bottom)
-                        
                         ZStack {
-                            Image(.textFieldBg)
+                            Image(.regBg)
                                 .resizable()
                                 .scaledToFit()
+                            
+                            VStack {
+                                Spacer()
+                                Text("Name")
+                                    .font(.custom(Fonts.regular.rawValue, size: 36))
+                                    .foregroundStyle(.white)
+                                    .textCase(.uppercase)
+                                    .frame(height: 30)
                                 
-                            TextField("Nickname", text: $nickname)
-                                .font(.custom(Fonts.regular.rawValue, size: 16))
-                                .padding(.horizontal)
-                                .foregroundStyle(.white)
-                                
-                        }.padding(.horizontal, 60).padding(.bottom, 50)
-                        
-                        
-                        Button {
-                            viewModel.currentTeam = currentTeam
-                        } label: {
-                            TextBg(height: 60, text: "PLAY", textSize: 20)
-                        }
-                        
-                        Spacer()
-                    }
-                }
-            } else {
-                ZStack {
-                    VStack {
-                        Spacer()
-                        HStack(spacing: 20) {
-                            Spacer()
-                            ForEach(viewModel.teams.indices, id: \.self) { index in
-                                
-                                Button {
-                                    currentTeam = viewModel.teams[index]
-                                } label: {
-                                    Image(viewModel.teams[index] == currentTeam ? viewModel.teams[index].selectedIcon : viewModel.teams[index].icon)
+                                ZStack {
+                                    Image(.textFieldBg)
                                         .resizable()
-                                        .foregroundColor(.black)
                                         .scaledToFit()
-                                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 104 * 1.8 : 104)
-                                }
+                                        
+                                    
+                                    TextField("Nickname", text: $nickname)
+                                        .font(.custom(Fonts.regular.rawValue, size: 16))
+                                        .bold()
+                                        .padding(.horizontal)
+                                        .foregroundStyle(.white)
+                                    
+                                    
+                                }.padding(.horizontal, 30)
+                                
+                                LazyVGrid(columns: columns, spacing: 16) {
+                                    ForEach(viewModel.teams.indices, id: \.self) { index in
+                                        
+                                        Button {
+                                            currentTeam = viewModel.teams[index]
+                                        } label: {
+                                            Image(viewModel.teams[index].icon)
+                                                .resizable()
+                                                .foregroundColor(.black)
+                                                .scaledToFit()
+                                                .frame(height: DeviceInfo.shared.deviceType == .pad ? 39 * 1.8 : 39)
+                                                .clipShape(Circle())
+                                                .overlay(
+                                                    Circle()
+                                                        .stroke(currentTeam == viewModel.teams[index] ? Color.green : Color.clear, lineWidth: 4)
+                                                )
+                                        }
+                                        
+                                    }
+                                }.padding(.bottom).padding(.horizontal, 35)
+                        
+                                Spacer()
                             }
-                            .frame(width: DeviceInfo.shared.deviceType == .pad ? 160 : 80)
-                            Spacer()
-                        }.padding(.bottom, 5)
-                        
-                        ZStack {
-                            Image(.textFieldBg)
-                                .resizable()
-                                .scaledToFit()
-                                
-                            TextField("Nickname", text: $nickname)
-                                .font(.custom(Fonts.regular.rawValue, size: 16))
-                                .padding(.horizontal)
-                                .foregroundStyle(.white)
-                                
-                        }.frame(width: 300).padding(.bottom, 50)
-                        
+                        }.frame(width: 213, height: 250)
                         
                         Button {
-                            if let icon = currentTeam, !nickname.isEmpty {
-                                viewModel.currentTeam = currentTeam
+                            if let team = currentTeam, !nickname.isEmpty {
+                                viewModel.currentTeam = Team(icon: team.icon, name: nickname)
                             }
                         } label: {
-                            TextBg(height: 60, text: "PLAY", textSize: 20)
+                            ZStack {
+                                Image(currentTeam != nil && !nickname.isEmpty ? .startBtnBgOn : .startBtnBgOff)
+                                    .resizable()
+                                    .scaledToFit()
+                                Text("Get Started")
+                                    .font(.custom(Fonts.regular.rawValue, size: 36))
+                                    .foregroundStyle(.black)
+                                    .textCase(.uppercase)
+                            }
+                            .frame(height: 80)
                         }
-                        
+                        Spacer()
                     }
+                    Spacer()
                 }
-            }
+            
         }.background(
-            Image(.appBg)
-                .resizable()
-                .edgesIgnoringSafeArea(.all)
-                .scaledToFill()
+            ZStack {
+                Color.appSkyBlue
+                
+                Image(.bg1)
+                    .resizable()
+                    .scaledToFill()
+            }.edgesIgnoringSafeArea(.all)
             
         )
     }
@@ -115,7 +121,7 @@ struct TeamsView: View {
             
             VStack(alignment: .center, spacing: 10) {
                 
-               
+                
                 
                 
                 Text(header)
