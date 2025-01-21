@@ -1,3 +1,11 @@
+//
+//  SettingsModel.swift
+//  Seven Feathers Online
+//
+//  Created by Dias Atudinov on 21.01.2025.
+//
+
+
 import SwiftUI
 
 class SettingsModel: ObservableObject {
