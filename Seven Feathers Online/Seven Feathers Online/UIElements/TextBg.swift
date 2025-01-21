@@ -1,3 +1,11 @@
+//
+//  TextBg.swift
+//  Seven Feathers Online
+//
+//  Created by Dias Atudinov on 20.01.2025.
+//
+
+
 import SwiftUI
 
 struct TextBg: View {
@@ -12,7 +20,7 @@ struct TextBg: View {
                 .frame(height: height)
             Text(text)
                 .font(.custom(Fonts.regular.rawValue, size: textSize))
-                .foregroundStyle(.secondaryGold)
+                .foregroundStyle(.black)
         }
     }
 }
