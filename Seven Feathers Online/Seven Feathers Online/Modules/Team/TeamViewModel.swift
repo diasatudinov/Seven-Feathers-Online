@@ -53,8 +53,8 @@ class TeamViewModel: ObservableObject {
         
         return otherTeams.randomElement()
     }
-    
-    func currenTeamNil() {
-        currentTeam = nil
+   
+    func updateCurrentTeam(name: String, icon: String) {
+        currentTeam = Team(icon: icon, name: name)
     }
 }

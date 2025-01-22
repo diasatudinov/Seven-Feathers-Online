@@ -1,3 +1,11 @@
+//
+//  TrainingViewModel.swift
+//  Seven Feathers Online
+//
+//  Created by Dias Atudinov on 22.01.2025.
+//
+
+
 import SwiftUI
 import Combine
 
@@ -5,7 +13,7 @@ class TrainingViewModel: ObservableObject {
     @Published var tiles: [Tile] = []
     @Published var isOver = false
     @Published var isWin = false
-    let gridSize = 4
+    let gridSize = 3
     
     @Published var elapsedTime: String = "00:00"
     private var timer: AnyCancellable?
@@ -26,49 +34,54 @@ class TrainingViewModel: ObservableObject {
         elapsedTime = "00:00"
         pausedTime = 0
         // Generate numbers from 1 to 15 and add one empty cell
-        var numbers = (1...15).map { $0 }
+        var numbers = (1...7).map { $0 }
+        numbers.append(contentsOf: [0, 0]) // Add two empty cells (represented as 0)
         numbers.shuffle()
-        numbers.append(0) // Add the empty cell (represented as 0)
         
         tiles = numbers.enumerated().map { index, value in
             Tile(id: index, value: value == 0 ? nil : value)
         }
     }
     
+    
     func moveTile(at index: Int) {
         // Get the row and column of the tapped tile
         let tappedRow = index / gridSize
         let tappedCol = index % gridSize
         
-        // Find the empty cell
-        guard let emptyIndex = tiles.firstIndex(where: { $0.value == nil }) else { return }
-        let emptyRow = emptyIndex / gridSize
-        let emptyCol = emptyIndex % gridSize
+        // Find the indices of the empty cells
+        let emptyIndices = tiles.indices.filter { tiles[$0].value == nil }
+        guard !emptyIndices.isEmpty else { return }
         
-        // Check if the tapped tile is adjacent to the empty cell
-        let isAdjacent = (tappedRow == emptyRow && abs(tappedCol - emptyCol) == 1) ||
-        (tappedCol == emptyCol && abs(tappedRow - emptyRow) == 1)
-        
-        if isAdjacent {
-            // Swap the tapped tile with the empty cell
-            tiles.swapAt(index, emptyIndex)
+        // Check if the tapped tile is adjacent to any empty cell
+        for emptyIndex in emptyIndices {
+            let emptyRow = emptyIndex / gridSize
+            let emptyCol = emptyIndex % gridSize
             
-            // Start the timer on the first move
-            if !isTimerRunning {
-                timer?.cancel()
-                startTimer()
-            }
+            let isAdjacent = (tappedRow == emptyRow && abs(tappedCol - emptyCol) == 1) ||
+            (tappedCol == emptyCol && abs(tappedRow - emptyRow) == 1)
             
-            // Check if the player has won
-            if isGameCompleted() {
+            if isAdjacent {
+                // Swap the tapped tile with the empty cell
+                tiles.swapAt(index, emptyIndex)
                 
-                stopTimer()
+                // Start the timer on the first move
+                if !isTimerRunning {
+                    timer?.cancel()
+                    startTimer()
+                }
                 
-                if isNewRecord(currentTime: elapsedTime, recordTime: scoreTime) {
-                    isOver = true
-                    scoreTime = elapsedTime
-                } else {
-                    isWin = true
+                // Check if the player has won
+                if isGameCompleted() {
+                    
+                    stopTimer()
+                    
+                    if isNewRecord(currentTime: elapsedTime, recordTime: scoreTime) {
+                        isOver = true
+                        scoreTime = elapsedTime
+                    } else {
+                        isWin = true
+                    }
                 }
             }
         }
@@ -76,12 +89,12 @@ class TrainingViewModel: ObservableObject {
     
     func isGameCompleted() -> Bool {
         // The tiles should be in order from 1 to 15, with the empty cell at the end
-        for i in 0..<tiles.count - 1 {
+        for i in 0..<7 {
             if tiles[i].value != i + 1 {
                 return false
             }
         }
-        return tiles.last?.value == nil
+        return tiles[7].value == nil && tiles[8].value == nil
     }
     
     func startTimer() {

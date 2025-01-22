@@ -1,3 +1,11 @@
+//
+//  OnlineView.swift
+//  Seven Feathers Online
+//
+//  Created by Dias Atudinov on 22.01.2025.
+//
+
+
 import SwiftUI
 
 struct OnlineView: View {
@@ -20,7 +28,7 @@ struct OnlineView: View {
                         isPause = true
                     } label: {
                         ZStack {
-                            Image(.pauseTL)
+                            Image(.pause)
                                 .resizable()
                                 .scaledToFit()
                         }.frame(height: DeviceInfo.shared.deviceType == .pad ? 100:50)
@@ -73,14 +81,14 @@ struct OnlineView: View {
                                 .frame(height: 140)
                             
                             Text(currentTeam.name)
-                                .font(.custom(Alike.regular.rawValue, size: 24))
+                                .font(.custom(Fonts.regular.rawValue, size: 24))
                                 .foregroundStyle(.white)
                                 .textCase(.uppercase)
                         }
                     }
                     
                     Text("VS")
-                        .font(.custom(Alike.regular.rawValue, size: 36))
+                        .font(.custom(Fonts.regular.rawValue, size: 36))
                         .foregroundStyle(.white)
                         .textCase(.uppercase)
                         .padding(50)
@@ -94,7 +102,7 @@ struct OnlineView: View {
                                 .frame(height: 140)
                             
                             Text(randomTeam.name)
-                                .font(.custom(Alike.regular.rawValue, size: 24))
+                                .font(.custom(Fonts.regular.rawValue, size: 24))
                                 .foregroundStyle(.white)
                                 .textCase(.uppercase)
                         }
@@ -110,7 +118,7 @@ struct OnlineView: View {
             }
             
             if isGame {
-                GameView(viewModel: GameViewModel(), settingsVM: settingsVM)
+                GameView(settingsVM: settingsVM, teamVM: teamVM)
             }
             
             if isPause {
@@ -118,10 +126,10 @@ struct OnlineView: View {
                     
                     Color.black.opacity(0.5).ignoresSafeArea()
                     
-                    Image(.pauseBgTL)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
+//                    Image(.pauseBgTL)
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
                     VStack {
                         Spacer()
                         Button {
@@ -143,8 +151,8 @@ struct OnlineView: View {
             }
         }.background(
             ZStack {
-                Color.main.ignoresSafeArea()
-                Image(.bgTL)
+                Color.appSkyBlue.ignoresSafeArea()
+                Image(.bg1)
                     .resizable()
                     .edgesIgnoringSafeArea(.all)
                     .scaledToFill()

@@ -1,3 +1,11 @@
+//
+//  TrainingView.swift
+//  Seven Feathers Online
+//
+//  Created by Dias Atudinov on 22.01.2025.
+//
+
+
 import SwiftUI
 import AVFoundation
 
@@ -6,7 +14,7 @@ struct TrainingView: View {
     @ObservedObject var viewModel: TrainingViewModel
     @ObservedObject var settingsVM: SettingsModel
     
-    let columns = Array(repeating: GridItem(.flexible()), count: 4)
+    let columns = Array(repeating: GridItem(.flexible()), count: 3)
 
     @State private var isPause = false
     
@@ -22,7 +30,7 @@ struct TrainingView: View {
                         viewModel.pauseTimer()
                     } label: {
                         ZStack {
-                            Image(.pauseTL)
+                            Image(.pause)
                                 .resizable()
                                 .scaledToFit()
                         }.frame(height: DeviceInfo.shared.deviceType == .pad ? 100:50)
@@ -39,60 +47,49 @@ struct TrainingView: View {
             VStack {
                 Spacer()
                     Text(viewModel.elapsedTime)
-                    .font(.custom(Alike.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48:24))
+                    .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48:24))
                         .foregroundStyle(.white)
                         .textCase(.uppercase)
                         .padding(10)
                         .frame(width: DeviceInfo.shared.deviceType == .pad ? 400:200)
-                        .background(
-                            Rectangle()
-                                .cornerRadius(5)
-                                .foregroundStyle(.bgMain)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .stroke(lineWidth: 2).foregroundStyle(.mainRed)
-                                )
-                        )
+                        
                 
-                
-                LazyVGrid(columns: columns, spacing: 4) {
-                    ForEach(viewModel.tiles) { tile in
-                        ZStack {
-                            if tile.value != nil {
-                                Image(.cell)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: DeviceInfo.shared.deviceType == .pad ? 120:66)
-                            }
-                            
-                            if let value = tile.value {
-                                Text("\(value)")
-                                    .font(.custom(Alike.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48 : 24))
-                                    .foregroundColor(.black)
-                            }
-                        }
-                        .onTapGesture {
-                            if let index = viewModel.tiles.firstIndex(where: { $0.id == tile.id }) {
-                                viewModel.moveTile(at: index)
+                ZStack {
+                    Image(.deskBgImg)
+                        .resizable()
+                        .scaledToFit()
+                    Color.deskBg
+                        .frame(width: 240, height: 240)
+                    LazyVGrid(columns: columns, spacing: 0) {
+                        ForEach(viewModel.tiles) { tile in
+                            ZStack {
+                                if tile.value != nil {
+                                    Image(.cell)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: DeviceInfo.shared.deviceType == .pad ? 160:80,height: DeviceInfo.shared.deviceType == .pad ? 160:80)
+                                }
                                 
-                                if settingsVM.soundEnabled {
-                                    playSound(named: "move")
+                                if let value = tile.value {
+                                    Text("\(value)")
+                                        .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 80 : 40))
+                                        .foregroundColor(.black)
+                                }
+                            }
+                            .onTapGesture {
+                                if let index = viewModel.tiles.firstIndex(where: { $0.id == tile.id }) {
+                                    viewModel.moveTile(at: index)
                                     
+                                    if settingsVM.soundEnabled {
+                                        playSound(named: "move")
+                                        
+                                    }
                                 }
                             }
                         }
-                    }
-                }.frame(width: DeviceInfo.shared.deviceType == .pad ? 500 : 290)
-                    .padding(15)
-                    .background(
-                        Rectangle()
-                            .cornerRadius(15)
-                            .foregroundStyle(.bgMain)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .stroke(lineWidth: 2).foregroundStyle(.mainRed)
-                            )
-                    )
+                    }.frame(width: DeviceInfo.shared.deviceType == .pad ? 470 : 235, height: DeviceInfo.shared.deviceType == .pad ? 480 : 240)
+                        .padding(15)
+                }.frame(width: DeviceInfo.shared.deviceType == .pad ? 540 : 270, height: DeviceInfo.shared.deviceType == .pad ? 540 : 270)
                 Spacer()
             }
             
@@ -101,7 +98,7 @@ struct TrainingView: View {
                     
                     Color.black.opacity(0.5).ignoresSafeArea()
                     
-                    Image(.youWinBg)
+                    Image(.winBg)
                         .resizable()
                         .scaledToFit()
                         .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
@@ -132,7 +129,7 @@ struct TrainingView: View {
                     
                     Color.black.opacity(0.5).ignoresSafeArea()
                     
-                    Image(.pauseBgTL)
+                    Image(.pauseBg)
                         .resizable()
                         .scaledToFit()
                         .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
@@ -163,7 +160,7 @@ struct TrainingView: View {
                     
                     Color.black.opacity(0.5).ignoresSafeArea()
                     
-                    Image(.bestScoreTraining)
+                    Image(.winBg)
                         .resizable()
                         .scaledToFit()
                         .frame(height: DeviceInfo.shared.deviceType == .pad ? 500: 253)
@@ -171,23 +168,18 @@ struct TrainingView: View {
                         
                         Spacer()
                         Text("Time")
-                            .font(.custom(Alike.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 40:20))
+                            .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 40:20))
                             .foregroundStyle(.white)
                             .textCase(.uppercase)
                             .padding(.bottom, 5)
                         
                         Text(viewModel.scoreTime)
-                            .font(.custom(Alike.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 40:20))
+                            .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 40:20))
                             .foregroundStyle(.white)
                             .textCase(.uppercase)
                             .padding(.horizontal, 50)
                             .padding(.vertical, 5)
-                            .background(
-                                Rectangle()
-                                    .foregroundStyle(.timeBg)
-                                    .cornerRadius(20)
-                                
-                            )
+                            
                             .padding(.bottom, DeviceInfo.shared.deviceType == .pad ? 40:20)
                         Button {
                             viewModel.resetGame()
@@ -210,8 +202,8 @@ struct TrainingView: View {
         }
         .background(
             ZStack {
-                Color.main.ignoresSafeArea()
-                Image(.bgTL)
+                Color.appSkyBlue.ignoresSafeArea()
+                Image(.bg1)
                     .resizable()
                     .edgesIgnoringSafeArea(.all)
                     .scaledToFill()
