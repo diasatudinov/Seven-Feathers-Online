@@ -1,13 +1,21 @@
+//
+//  GameViewModel.swift
+//  Seven Feathers Online
+//
+//  Created by Dias Atudinov on 22.01.2025.
+//
+
+
 import SwiftUI
 import Combine
 
 class GameViewModel: ObservableObject {
     @Published var tiles: [Tile] = []
     @Published var opponentsTiles: [Tile] = []
-    @Published var isWin = false
+    @Published var isGameOver = false
     @Published var youLose = false
     
-    let gridSize = 4
+    let gridSize = 3
     
     @Published var elapsedTime: String = "00:00"
     private var timer: AnyCancellable?
@@ -28,19 +36,15 @@ class GameViewModel: ObservableObject {
         isTimerRunning = false
         elapsedTime = "00:00"
         pausedTime = 0
-        // Generate numbers from 1 to 15 and add one empty cell
-        var numbers = (1...15).map { $0 }
+        
+        // Generate numbers from 1 to 7 and add two empty cells
+        var numbers = (1...7).map { $0 }
+        numbers.append(contentsOf: [0, 0]) // Add two empty cells (represented as 0)
         numbers.shuffle()
-        numbers.append(0) // Add the empty cell (represented as 0)
         
         tiles = numbers.enumerated().map { index, value in
             Tile(id: index, value: value == 0 ? nil : value)
         }
-        
-        opponentsTiles = numbers.enumerated().map { index, value in
-            Tile(id: index, value: value == 0 ? nil : value)
-        }
-        startOpponent()
         
         // Start the timer on the first move
         if !isTimerRunning {
@@ -54,51 +58,55 @@ class GameViewModel: ObservableObject {
         let tappedRow = index / gridSize
         let tappedCol = index % gridSize
         
-        // Find the empty cell
-        guard let emptyIndex = tiles.firstIndex(where: { $0.value == nil }) else { return }
-        let emptyRow = emptyIndex / gridSize
-        let emptyCol = emptyIndex % gridSize
+        // Find the indices of the empty cells
+        let emptyIndices = tiles.indices.filter { tiles[$0].value == nil }
+        guard !emptyIndices.isEmpty else { return }
         
-        // Check if the tapped tile is adjacent to the empty cell
-        let isAdjacent = (tappedRow == emptyRow && abs(tappedCol - emptyCol) == 1) ||
-        (tappedCol == emptyCol && abs(tappedRow - emptyRow) == 1)
-        
-        if isAdjacent {
-            // Swap the tapped tile with the empty cell
-            tiles.swapAt(index, emptyIndex)
+        // Check if the tapped tile is adjacent to any empty cell
+        for emptyIndex in emptyIndices {
+            let emptyRow = emptyIndex / gridSize
+            let emptyCol = emptyIndex % gridSize
             
-            // Check if the player has won
-            if isGameCompleted() {
+            let isAdjacent = (tappedRow == emptyRow && abs(tappedCol - emptyCol) == 1) ||
+            (tappedCol == emptyCol && abs(tappedRow - emptyRow) == 1)
+            
+            if isAdjacent {
+                // Swap the tapped tile with the empty cell
+                tiles.swapAt(index, emptyIndex)
                 
-                stopTimer()
-                
-                if isNewRecord(currentTime: elapsedTime, recordTime: scoreTime) {
-                
-                } else {
-                    isWin = true
-                }
+                // Check if the player has won
+//                if isGameCompleted() {
+//                    stopTimer()
+//                    if isNewRecord(currentTime: elapsedTime, recordTime: scoreTime) {
+//                        // Handle new record
+//                        isWin = true
+//                    } else {
+//                        isWin = true
+//                    }
+//                }
+                return // Exit after a valid move
             }
         }
     }
     
     func isGameCompleted() -> Bool {
-        // The tiles should be in order from 1 to 15, with the empty cell at the end
-        for i in 0..<tiles.count - 1 {
+        // The tiles should be in order from 1 to 7, with two empty cells at the end
+        for i in 0..<7 {
             if tiles[i].value != i + 1 {
                 return false
             }
         }
-        return tiles.last?.value == nil
+        return tiles[7].value == nil && tiles[8].value == nil
     }
     
     func isOpponentsGameCompleted() -> Bool {
-        // The tiles should be in order from 1 to 15, with the empty cell at the end
-        for i in 0..<opponentsTiles.count - 1 {
+        // The tiles should be in order from 1 to 7, with two empty cells at the end
+        for i in 0..<7 {
             if opponentsTiles[i].value != i + 1 {
                 return false
             }
         }
-        return opponentsTiles.last?.value == nil
+        return opponentsTiles[7].value == nil && opponentsTiles[8].value == nil
     }
     
     func startTimer() {
@@ -163,18 +171,18 @@ class GameViewModel: ObservableObject {
         opponentTimer?.invalidate()
     }
     
-    private func getAdjacentIndices(for index: Int) -> [Int] {
-            let row = index / gridSize
-            let col = index % gridSize
-            var indices: [Int] = []
-
-            if row > 0 { indices.append(index - gridSize) }        // Top
-            if row < gridSize - 1 { indices.append(index + gridSize) } // Bottom
-            if col > 0 { indices.append(index - 1) }              // Left
-            if col < gridSize - 1 { indices.append(index + 1) }   // Right
-
-            return indices
-        }
+    func getAdjacentIndices(for index: Int) -> [Int] {
+        let row = index / gridSize
+        let col = index % gridSize
+        var indices: [Int] = []
+        
+        if row > 0 { indices.append(index - gridSize) }        // Top
+        if row < gridSize - 1 { indices.append(index + gridSize) } // Bottom
+        if col > 0 { indices.append(index - 1) }              // Left
+        if col < gridSize - 1 { indices.append(index + 1) }   // Right
+        
+        return indices
+    }
     
     private func handleGameOver(isOpponent: Bool = false) {
             stopTimer()
@@ -184,7 +192,7 @@ class GameViewModel: ObservableObject {
             } else if isNewRecord(currentTime: elapsedTime, recordTime: scoreTime) {
         
             } else {
-                isWin = true
+                isGameOver = true
             }
         }
     

@@ -1,11 +1,29 @@
+//
+//  GameView.swift
+//  Seven Feathers Online
+//
+//  Created by Dias Atudinov on 22.01.2025.
+//
+
+
 import SwiftUI
 import AVFoundation
 
 struct GameView: View {
     @Environment(\.presentationMode) var presentationMode
-    @ObservedObject var viewModel: GameViewModel
+    @StateObject var viewModel = GameViewModel()
+    @StateObject var viewModel2 = GameViewModel()
+    @StateObject var viewModel3 = GameViewModel()
+    @StateObject var viewModel4 = GameViewModel()
     @ObservedObject var settingsVM: SettingsModel
-    let columns = Array(repeating: GridItem(.flexible()), count: 4)
+    @ObservedObject var teamVM: TeamViewModel
+
+    @State private var unlockedBoards = [true, false, false, false] // Состояния разблокировки досок
+    @State private var board1Finish = false
+    @State private var board2Finish = false
+    @State private var board3Finish = false
+    
+    let columns = Array(repeating: GridItem(.flexible()), count: 3)
     @State private var isPause = false
     @State private var audioPlayer: AVAudioPlayer?
     var body: some View {
@@ -18,7 +36,7 @@ struct GameView: View {
                             isPause = true
                         } label: {
                             ZStack {
-                                Image(.pauseTL)
+                                Image(.pause)
                                     .resizable()
                                     .scaledToFit()
                             }.frame(height: DeviceInfo.shared.deviceType == .pad ? 100:50)
@@ -30,21 +48,19 @@ struct GameView: View {
                     }.padding([.top,.horizontal], 20)
                     
                     HStack {
-                        Text(viewModel.elapsedTime)
-                        .font(.custom(Alike.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48:24))
-                            .foregroundStyle(.white)
-                            .textCase(.uppercase)
-                            .padding(10)
-                            .frame(width: DeviceInfo.shared.deviceType == .pad ? 400:200)
-                            .background(
-                                Rectangle()
-                                    .cornerRadius(5)
-                                    .foregroundStyle(.bgMain)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 5)
-                                            .stroke(lineWidth: 2).foregroundStyle(.mainRed)
-                                    )
-                            )
+                        Spacer()
+                        ZStack {
+                            Image(.timeBg)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 50)
+                            Text(viewModel.elapsedTime)
+                                .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48:24))
+                                .foregroundStyle(.white)
+                                .textCase(.uppercase)
+                                .padding(10)
+                                
+                        }.frame(width: DeviceInfo.shared.deviceType == .pad ? 400:200)
                     }.padding([.top,.horizontal], 20)
                 }
                 Spacer()
@@ -54,120 +70,75 @@ struct GameView: View {
                 Spacer()
                 HStack {
                     //MARK: YOU
-                    VStack(spacing: 10) {
-                        Spacer()
-                        Text("You")
-                            .font(.custom(Alike.regular.rawValue, size: 32))
-                            .foregroundStyle(.white)
-                            .textCase(.uppercase)
-                        LazyVGrid(columns: columns, spacing: 4) {
-                            ForEach(viewModel.tiles) { tile in
-                                ZStack {
-                                    if tile.value != nil {
-                                        Image(.cell)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(height: DeviceInfo.shared.deviceType == .pad ? 110:55)
-                                    }
-                                    
-                                    if let value = tile.value {
-                                        Text("\(value)")
-                                            .font(.custom(Alike.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48 : 24))
-                                            .foregroundColor(.black)
-                                    }
-                                }
-                                .onTapGesture {
-                                    if let index = viewModel.tiles.firstIndex(where: { $0.id == tile.id }) {
-                                        viewModel.moveTile(at: index)
-                                        if settingsVM.soundEnabled {
-                                            playSound(named: "move")
-                                            
-                                        }
-                                    }
-                                }
-                            }
-                        }.frame(width: DeviceInfo.shared.deviceType == .pad ? 470 : 235)
-                            .padding(15)
-                            .background(
-                                Rectangle()
-                                    .cornerRadius(15)
-                                    .foregroundStyle(.bgMain)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 15)
-                                            .stroke(lineWidth: 2).foregroundStyle(.mainRed)
-                                    )
-                            )
-                    }
-                    Spacer()
-                    //MARK: Opponent
+                    boardView(for: viewModel, isLocked: !unlockedBoards[0], id: 0, finished: board1Finish)
+                    boardView(for: viewModel2, isLocked: !unlockedBoards[1], id: 1, finished: board2Finish)
+                    boardView(for: viewModel3, isLocked: !unlockedBoards[2], id: 2, finished: board3Finish)
+                    boardView(for: viewModel4, isLocked: !unlockedBoards[3], id: 3, finished: false)
                     
-                    VStack(spacing: 10) {
-                        Spacer()
-                        Text("Opponent")
-                            .font(.custom(Alike.regular.rawValue, size: 32))
-                            .foregroundStyle(.white)
-                            .textCase(.uppercase)
-                        LazyVGrid(columns: columns, spacing: 4) {
-                            ForEach(viewModel.opponentsTiles) { tile in
-                                ZStack {
-                                    if tile.value != nil {
-                                        Image(.cell)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(height: DeviceInfo.shared.deviceType == .pad ? 110:55)
-                                    }
-                                    
-                                    if let value = tile.value {
-                                        Text("\(value)")
-                                            .font(.custom(Alike.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48 : 24))
-                                            .foregroundColor(.black)
-                                    }
-                                }
-                            }
-                        }.frame(width: DeviceInfo.shared.deviceType == .pad ? 470 : 235)
-                            .padding(15)
-                            .background(
-                                Rectangle()
-                                    .cornerRadius(15)
-                                    .foregroundStyle(.bgMain)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 15)
-                                            .stroke(lineWidth: 2).foregroundStyle(.mainRed)
-                                    )
-                            )
-                    }
+                    
                 }
                 Spacer()
             }
             
-            if viewModel.isWin {
+            if viewModel.isGameOver {
                 ZStack {
                     
                     Color.black.opacity(0.5).ignoresSafeArea()
                     
-                    Image(.youWinBg)
+                    Image(.winBg)
                         .resizable()
                         .scaledToFit()
-                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
-                    VStack {
+                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 600:338)
+                    VStack(spacing: 20) {
                         Spacer()
-                        Button {
-                            viewModel.isWin = false
-                            viewModel.resetGame()
-                        } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "New game", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
+                        VStack(spacing: 4) {
+                            if let team = teamVM.currentTeam {
+                                HStack {
+                                    Image(team.icon)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 40)
+                                    Text(team.name)
+                                        .font(.custom(Fonts.regular.rawValue, size: 24))
+                                        .foregroundStyle(.black)
+                                }
+                            }
                             
+                            ZStack {
+                                Image(.timeBg)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 50)
+                                Text(viewModel.elapsedTime)
+                                    .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48:24))
+                                    .foregroundStyle(.white)
+                                    .textCase(.uppercase)
+                                
+                            }
                         }
                         
-                        Button {
-                            viewModel.resetGame()
-                            presentationMode.wrappedValue.dismiss()
-                        } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
+                        VStack(spacing: 7) {
+                            Button {
+                                viewModel.isGameOver = false
+                                viewModel.resetGame()
+                                resetGame2()
+                                
+                            } label: {
+                                TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:50, text: "Retry", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
+                                
+                            }
                             
+                            Button {
+                                viewModel.resetGame()
+                                resetGame2()
+                                presentationMode.wrappedValue.dismiss()
+                            } label: {
+                                TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:50, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
+                                
+                            }
                         }
                     }.padding(.bottom, DeviceInfo.shared.deviceType == .pad ? 60:30)
-                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
+                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:300)
                 }
             }
             
@@ -176,16 +147,16 @@ struct GameView: View {
                     
                     Color.black.opacity(0.5).ignoresSafeArea()
                     
-                    Image(.pauseBgTL)
+                    Image(.pauseBg)
                         .resizable()
                         .scaledToFit()
-                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
-                    VStack {
+                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 450:250)
+                    VStack(spacing: 7) {
                         Spacer()
                         Button {
                             isPause = false
                         } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "Resume", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
+                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:60, text: "Resume", textSize: DeviceInfo.shared.deviceType == .pad ? 48:32)
                             
                         }
                         
@@ -193,18 +164,18 @@ struct GameView: View {
                             viewModel.resetGame()
                             presentationMode.wrappedValue.dismiss()
                         } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
+                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:60, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 48:32)
                             
                         }
-                    }.padding(.bottom, DeviceInfo.shared.deviceType == .pad ? 60:30)
+                    }
                         .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
                 }
             }
         }
         .background(
             ZStack {
-                Color.main.ignoresSafeArea()
-                Image(.bgTL)
+                Color.appSkyBlue.ignoresSafeArea()
+                Image(.bg1)
                     .resizable()
                     .edgesIgnoringSafeArea(.all)
                     .scaledToFill()
@@ -212,6 +183,108 @@ struct GameView: View {
             
         )
     }
+    
+    private func resetGame2() {
+        unlockedBoards = [true, false, false, false]
+        board1Finish = false
+        board2Finish = false
+        board3Finish = false
+    }
+    
+    @ViewBuilder
+    private func boardView(for viewModel: GameViewModel, isLocked: Bool, id: Int, finished: Bool) -> some View {
+            ZStack {
+                if isLocked {
+                    VStack {
+                        Spacer()
+                        ZStack {
+                            Color.gray.opacity(0.5)
+                                .cornerRadius(10)
+                            Text("Locked")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                        }.frame(width: 200, height: 200)
+                    }
+                } else {
+                    VStack {
+                        Spacer()
+                        if finished {
+                            Image(.check)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 40)
+                        }
+                        
+                        ZStack {
+                            Image(.deskBgImg)
+                                .resizable()
+                                .scaledToFit()
+                            Color.deskBg
+                                .frame(width: 180, height: 180)
+                            LazyVGrid(columns: columns, spacing: 0) {
+                                ForEach(viewModel.tiles) { tile in
+                                    ZStack {
+                                        if tile.value != nil {
+                                            Image(.cell)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: DeviceInfo.shared.deviceType == .pad ? 110:60,height: DeviceInfo.shared.deviceType == .pad ? 110:60)
+                                        }
+                                        
+                                        if let value = tile.value {
+                                            Text("\(value)")
+                                                .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48 : 24))
+                                                .foregroundColor(.black)
+                                        }
+                                    }
+                                    .onTapGesture {
+                                        if let index = viewModel.tiles.firstIndex(where: { $0.id == tile.id }) {
+                                            withAnimation {
+                                                viewModel.moveTile(at: index)
+                                            }
+                                            if settingsVM.soundEnabled {
+                                                playSound(named: "move")
+                                                
+                                            }
+                                            checkWin(for: viewModel, id: id)
+                                        }
+                                    }
+                                }
+                            }.frame(width: DeviceInfo.shared.deviceType == .pad ? 360 : 180, height: DeviceInfo.shared.deviceType == .pad ? 360 : 180)
+                        }.frame(width: DeviceInfo.shared.deviceType == .pad ? 400 : 200, height: DeviceInfo.shared.deviceType == .pad ? 400 : 200)
+                            .disabled(finished)
+                    }
+
+                }
+            }
+            
+        }
+    
+    private func checkWin(for viewModel: GameViewModel, id: Int) {
+            if viewModel.isGameCompleted() {
+                withAnimation {
+                    unlockNextBoard(after: id)
+                }
+            }
+        }
+    
+    private func unlockNextBoard(after completedViewModelId: Int) {
+        
+            if completedViewModelId == 0 {
+                unlockedBoards[1] = true
+                board1Finish = true
+            } else if completedViewModelId == 1 {
+                unlockedBoards[2] = true
+                board2Finish = true
+
+            } else if completedViewModelId == 2 {
+                unlockedBoards[3] = true
+                board3Finish = true
+            } else if completedViewModelId == 3 {
+                viewModel.isGameOver = true
+                viewModel.stopTimer()
+            }
+        }
     
     func playSound(named soundName: String) {
         if let url = Bundle.main.url(forResource: soundName, withExtension: "mp3") {
@@ -226,5 +299,5 @@ struct GameView: View {
 }
 
 #Preview {
-    GameView(viewModel: GameViewModel(), settingsVM: SettingsModel())
+    GameView(settingsVM: SettingsModel(), teamVM: TeamViewModel())
 }
