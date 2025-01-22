@@ -86,6 +86,10 @@ struct SettingsView: View {
                             
                             HStack {
                                 Button {
+                                    if let team = teamVM.currentTeam {
+                                        nickname = team.name
+                                        currentTeamIcon = team.icon
+                                    }
                                     showChangeName = true
                                 } label: {
                                     
@@ -184,6 +188,7 @@ struct SettingsView: View {
                         VStack {
                             HStack {
                                 Button {
+                                    teamVM.updateCurrentTeam(name: nickname, icon: currentTeamIcon)
                                     showChangeName = false                                } label: {
                                         ZStack {
                                             Image(.backBtn)
@@ -209,12 +214,6 @@ struct SettingsView: View {
                 }.edgesIgnoringSafeArea(.all)
                 
             )
-            .onAppear {
-                if let team = teamVM.currentTeam {
-                    nickname = team.name
-                    currentTeamIcon = team.icon
-                }
-            }
         }
     }
     
