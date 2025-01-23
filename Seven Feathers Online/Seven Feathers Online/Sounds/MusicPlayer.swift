@@ -1,3 +1,11 @@
+//
+//  MusicPlayer.swift
+//  Seven Feathers Online
+//
+//  Created by Dias Atudinov on 23.01.2025.
+//
+
+
 import AVFoundation
 
 class MusicPlayer {

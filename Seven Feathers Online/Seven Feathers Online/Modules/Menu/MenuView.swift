@@ -168,18 +168,18 @@ struct MenuView: View {
                     }.edgesIgnoringSafeArea(.all)
                     
                 )
-                //                .onAppear {
-                //                    if settingsVM.musicEnabled {
-                //                        MusicPlayer.shared.playBackgroundMusic()
-                //                    }
-                //                }
-                //                .onChange(of: settingsVM.musicEnabled) { enabled in
-                //                    if enabled {
-                //                        MusicPlayer.shared.playBackgroundMusic()
-                //                    } else {
-                //                        MusicPlayer.shared.stopBackgroundMusic()
-                //                    }
-                //                }
+                                .onAppear {
+                                    if settingsVM.musicEnabled {
+                                        MusicPlayer.shared.playBackgroundMusic()
+                                    }
+                                }
+                                .onChange(of: settingsVM.musicEnabled) { enabled in
+                                    if enabled {
+                                        MusicPlayer.shared.playBackgroundMusic()
+                                    } else {
+                                        MusicPlayer.shared.stopBackgroundMusic()
+                                    }
+                                }
                 .fullScreenCover(isPresented: $showTrainig) {
                     TrainingView(viewModel: trainingVM, settingsVM: settingsVM)
                 }
