@@ -46,14 +46,32 @@ struct TrainingView: View {
             
             VStack {
                 Spacer()
-                    Text(viewModel.elapsedTime)
-                    .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48:24))
-                        .foregroundStyle(.white)
-                        .textCase(.uppercase)
-                        .padding(10)
+                HStack {
+                    Image(.timeBg)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 50)
                         .frame(width: DeviceInfo.shared.deviceType == .pad ? 400:200)
+                        .opacity(0)
+                    Spacer()
+                    Image("\(viewModel.progressBar())")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 60)
+                    Spacer()
+                    ZStack {
+                        Image(.timeBg)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 50)
+                        Text(viewModel.elapsedTime)
+                            .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48:24))
+                            .foregroundStyle(.white)
+                            .textCase(.uppercase)
+                            .padding(10)
                         
-                
+                    }.frame(width: DeviceInfo.shared.deviceType == .pad ? 400:200)
+                }
                 ZStack {
                     Image(.deskBgImg)
                         .resizable()
@@ -78,8 +96,9 @@ struct TrainingView: View {
                             }
                             .onTapGesture {
                                 if let index = viewModel.tiles.firstIndex(where: { $0.id == tile.id }) {
-                                    viewModel.moveTile(at: index)
-                                    
+                                    withAnimation {
+                                        viewModel.moveTile(at: index)
+                                    }
                                     if settingsVM.soundEnabled {
                                         playSound(named: "move")
                                         
@@ -97,30 +116,45 @@ struct TrainingView: View {
                 ZStack {
                     
                     Color.black.opacity(0.5).ignoresSafeArea()
-                    
-                    Image(.winBg)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
-                    VStack {
-                        Spacer()
-                        Button {
-                            viewModel.isWin = false
-                            viewModel.resetGame()
-                        } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "New game", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
-                            
-                        }
+                    ZStack {
+                        Image(.winBg)
+                            .resizable()
+                            .scaledToFit()
                         
-                        Button {
-                            viewModel.resetGame()
-                            presentationMode.wrappedValue.dismiss()
-                        } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
+                        VStack(spacing: 10) {
+                            Spacer()
                             
+                            ZStack {
+                                Image(.timeBg)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: DeviceInfo.shared.deviceType == .pad ? 100 : 50)
+                                
+                                Text(viewModel.elapsedTime)
+                                    .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 48:24))
+                                    .foregroundStyle(.white)
+                                    .textCase(.uppercase)
+                                    .padding(.horizontal, 50)
+                            }
+                            
+                            Button {
+                                viewModel.isWin = false
+                                viewModel.resetGame()
+                            } label: {
+                                TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:72, text: "Retry", textSize: DeviceInfo.shared.deviceType == .pad ? 48:32)
+                                
+                            }
+                            
+                            Button {
+                                viewModel.resetGame()
+                                presentationMode.wrappedValue.dismiss()
+                            } label: {
+                                TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:72, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 48:32)
+                                
+                            }
                         }
-                    }.padding(.bottom, DeviceInfo.shared.deviceType == .pad ? 60:30)
-                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
+                            .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
+                    }.frame(height: DeviceInfo.shared.deviceType == .pad ? 600:330)
                 }
             }
             
@@ -129,76 +163,33 @@ struct TrainingView: View {
                     
                     Color.black.opacity(0.5).ignoresSafeArea()
                     
-                    Image(.pauseBg)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
-                    VStack {
-                        Spacer()
-                        Button {
-                            isPause = false
-                            viewModel.resumeTimer()
-                        } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "Resume", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
-                            
-                        }
+                    ZStack {
+                        Image(.pauseBg)
+                            .resizable()
+                            .scaledToFit()
                         
-                        Button {
-                            viewModel.resetGame()
-                            presentationMode.wrappedValue.dismiss()
-                        } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
+                        VStack(spacing: 10) {
+                            Spacer()
+                            Button {
+                                isPause = false
+                                viewModel.resumeTimer()
+                            } label: {
+                                TextBg(height: DeviceInfo.shared.deviceType == .pad ? 140:72, text: "Resume", textSize: DeviceInfo.shared.deviceType == .pad ? 60:32)
+                                
+                            }
                             
+                            Button {
+                                viewModel.resetGame()
+                                presentationMode.wrappedValue.dismiss()
+                            } label: {
+                                TextBg(height: DeviceInfo.shared.deviceType == .pad ? 140:72, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 60:32)
+                                
+                            }
                         }
-                    }.padding(.bottom, DeviceInfo.shared.deviceType == .pad ? 60:30)
-                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
+                            .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
+                    }.frame(height: DeviceInfo.shared.deviceType == .pad ? 500:250)
                 }
             }
-            
-            if viewModel.isOver {
-                ZStack {
-                    
-                    Color.black.opacity(0.5).ignoresSafeArea()
-                    
-                    Image(.winBg)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 500: 253)
-                    VStack(spacing: 0) {
-                        
-                        Spacer()
-                        Text("Time")
-                            .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 40:20))
-                            .foregroundStyle(.white)
-                            .textCase(.uppercase)
-                            .padding(.bottom, 5)
-                        
-                        Text(viewModel.scoreTime)
-                            .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 40:20))
-                            .foregroundStyle(.white)
-                            .textCase(.uppercase)
-                            .padding(.horizontal, 50)
-                            .padding(.vertical, 5)
-                            
-                            .padding(.bottom, DeviceInfo.shared.deviceType == .pad ? 40:20)
-                        Button {
-                            viewModel.resetGame()
-                            viewModel.isOver = false
-                        } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "Retry", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
-                            
-                        }.padding(.bottom, 10)
-                        
-                        Button {
-                            presentationMode.wrappedValue.dismiss()
-                        } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
-                            
-                        }
-                    }.padding(.bottom, DeviceInfo.shared.deviceType == .pad ? 40:15).frame(height: DeviceInfo.shared.deviceType == .pad ? 500 : 253)
-                }
-            }
-            
         }
         .background(
             ZStack {
@@ -222,6 +213,8 @@ struct TrainingView: View {
             }
         }
     }
+    
+    
 }
 
 #Preview {

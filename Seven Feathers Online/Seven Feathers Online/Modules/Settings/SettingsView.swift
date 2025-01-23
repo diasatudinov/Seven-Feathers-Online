@@ -119,7 +119,7 @@ struct SettingsView: View {
                                     .resizable()
                                     .scaledToFit()
                                 
-                            }.frame(height: 50)
+                            }.frame(height: DeviceInfo.shared.deviceType == .pad ? 100:50)
                             
                         }
                         Spacer()
@@ -140,10 +140,10 @@ struct SettingsView: View {
                             VStack {
                                 Spacer()
                                 Text("Name")
-                                    .font(.custom(Fonts.regular.rawValue, size: 36))
+                                    .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 70:36))
                                     .foregroundStyle(.white)
                                     .textCase(.uppercase)
-                                    .frame(height: 30)
+                                    .frame(height: DeviceInfo.shared.deviceType == .pad ? 60:30)
                                 
                                 ZStack {
                                     Image(.textFieldBg)
@@ -152,15 +152,15 @@ struct SettingsView: View {
                                     
                                     
                                     TextField("Nickname", text: $nickname)
-                                        .font(.custom(Fonts.regular.rawValue, size: 16))
+                                        .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 32:16))
                                         .bold()
                                         .padding(.horizontal)
                                         .foregroundStyle(.white)
                                     
                                     
-                                }.padding(.horizontal, 30)
+                                }.padding(.horizontal, DeviceInfo.shared.deviceType == .pad ? 60:30)
                                 
-                                LazyVGrid(columns: columns, spacing: 16) {
+                                LazyVGrid(columns: columns, spacing: DeviceInfo.shared.deviceType == .pad ? 32:16) {
                                     ForEach(teamVM.teams.indices, id: \.self) { index in
                                         
                                         Button {
@@ -179,11 +179,11 @@ struct SettingsView: View {
                                         }
                                         
                                     }
-                                }.padding(.bottom).padding(.horizontal, 35)
+                                }.padding(.bottom).padding(.horizontal, DeviceInfo.shared.deviceType == .pad ? 70:35)
                                 
                                 Spacer()
                             }
-                        }.frame(width: 213, height: 250)
+                        }.frame(width: DeviceInfo.shared.deviceType == .pad ? 400:213, height: DeviceInfo.shared.deviceType == .pad ? 500:250)
                         
                         VStack {
                             HStack {
@@ -195,7 +195,7 @@ struct SettingsView: View {
                                                 .resizable()
                                                 .scaledToFit()
                                             
-                                        }.frame(height: 50)
+                                        }.frame(height: DeviceInfo.shared.deviceType == .pad ? 100:50)
                                         
                                     }
                                 Spacer()

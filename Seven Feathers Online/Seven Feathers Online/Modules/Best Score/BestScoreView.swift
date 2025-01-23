@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct BestScoreView: View {
-    
+    var trainingTime: String
+    var gameTime: String
     var xBtnTap: () -> ()
     var body: some View {
         ZStack {
@@ -24,13 +25,15 @@ struct BestScoreView: View {
                         .foregroundStyle(.white)
                         .textCase(.uppercase)
                         .frame(height: 20)
-                    
                     ZStack {
                         Image(.textFieldBg)
                             .resizable()
                             .scaledToFit()
                             .scaledToFit()
                             .frame(height: 34)
+                        Text(trainingTime)
+                            .font(.custom(Fonts.regular.rawValue, size: 16))
+                            .foregroundStyle(.white)
                     }
                 }.padding(.horizontal)
                 
@@ -46,6 +49,10 @@ struct BestScoreView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 34)
+                        
+                        Text(gameTime)
+                            .font(.custom(Fonts.regular.rawValue, size: 16))
+                            .foregroundStyle(.white)
                     }
                 }.padding(.horizontal)
                 Spacer()
@@ -71,5 +78,5 @@ struct BestScoreView: View {
 }
 
 #Preview {
-    BestScoreView(xBtnTap: { })
+    BestScoreView(trainingTime: "00:30", gameTime: "01:30", xBtnTap: {})
 }

@@ -26,6 +26,14 @@ struct GameView: View {
     let columns = Array(repeating: GridItem(.flexible()), count: 3)
     @State private var isPause = false
     @State private var audioPlayer: AVAudioPlayer?
+    
+    @State var opponentIcon: String
+    @State var opponentName: String
+    
+    @State private var stars: [Int] = [] // Array to track added stars
+    @State private var timer: Timer? // Timer to add stars
+    @State private var isRunning = false
+    @State private var youLose = false
     var body: some View {
         ZStack {
             
@@ -44,11 +52,6 @@ struct GameView: View {
                         }
                         Spacer()
                         
-                        
-                    }.padding([.top,.horizontal], 20)
-                    
-                    HStack {
-                        Spacer()
                         ZStack {
                             Image(.timeBg)
                                 .resizable()
@@ -61,6 +64,31 @@ struct GameView: View {
                                 .padding(10)
                                 
                         }.frame(width: DeviceInfo.shared.deviceType == .pad ? 400:200)
+                    }.padding([.top,.horizontal], 20)
+                    
+                    HStack {
+                        
+                        HStack {
+                            
+                            Image(opponentIcon)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 60)
+                            
+                            Text(opponentName)
+                                .font(.custom(Fonts.regular.rawValue, size: 32))
+                                .foregroundStyle(.black)
+                                .textCase(.uppercase)
+                            
+                            ForEach(stars, id: \.self) { star in
+                                Image(.star)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 25)
+                                    .foregroundColor(.yellow)
+                            }
+                        }
+                        
                     }.padding([.top,.horizontal], 20)
                 }
                 Spacer()
@@ -76,7 +104,7 @@ struct GameView: View {
                     boardView(for: viewModel4, isLocked: !unlockedBoards[3], id: 3, finished: false)
                     
                     
-                }
+                }.padding(.horizontal)
                 Spacer()
             }
             
@@ -85,25 +113,36 @@ struct GameView: View {
                     
                     Color.black.opacity(0.5).ignoresSafeArea()
                     
-                    Image(.winBg)
+                    Image(youLose ? .loseBg:.winBg)
                         .resizable()
                         .scaledToFit()
                         .frame(height: DeviceInfo.shared.deviceType == .pad ? 600:338)
                     VStack(spacing: 20) {
                         Spacer()
                         VStack(spacing: 4) {
-                            if let team = teamVM.currentTeam {
+                            if youLose  {
                                 HStack {
-                                    Image(team.icon)
+                                    Image(opponentIcon)
                                         .resizable()
                                         .scaledToFit()
                                         .frame(height: 40)
-                                    Text(team.name)
+                                    Text(opponentName)
                                         .font(.custom(Fonts.regular.rawValue, size: 24))
                                         .foregroundStyle(.black)
                                 }
+                            } else {
+                                if let team = teamVM.currentTeam {
+                                    HStack {
+                                        Image(team.icon)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 40)
+                                        Text(team.name)
+                                            .font(.custom(Fonts.regular.rawValue, size: 24))
+                                            .foregroundStyle(.black)
+                                    }
+                                }
                             }
-                            
                             ZStack {
                                 Image(.timeBg)
                                     .resizable()
@@ -182,6 +221,23 @@ struct GameView: View {
             }
             
         )
+        .onAppear {
+            startAddingStars()
+        }
+    }
+    
+    private func isNewRecord(currentTime: String, recordTime: String) -> Bool {
+        let currentComponents = currentTime.split(separator: ":").compactMap { Int($0) }
+        let recordComponents = recordTime.split(separator: ":").compactMap { Int($0) }
+
+        guard currentComponents.count == 2, recordComponents.count == 2 else {
+            return false
+        }
+
+        let currentSeconds = currentComponents[0] * 60 + currentComponents[1]
+        let recordSeconds = recordComponents[0] * 60 + recordComponents[1]
+
+        return currentSeconds < recordSeconds || recordTime == "00:00"
     }
     
     private func resetGame2() {
@@ -197,13 +253,19 @@ struct GameView: View {
                 if isLocked {
                     VStack {
                         Spacer()
+                        Image(.check)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 40)
+                            .opacity(0)
                         ZStack {
                             Color.gray.opacity(0.5)
                                 .cornerRadius(10)
                             Text("Locked")
                                 .font(.headline)
                                 .foregroundColor(.white)
-                        }.frame(width: 200, height: 200)
+                        }.frame(width: UIScreen.main.bounds.width * 0.23, height: UIScreen.main.bounds.width * 0.23)
+                        Spacer()
                     }
                 } else {
                     VStack {
@@ -213,6 +275,12 @@ struct GameView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: 40)
+                        } else {
+                            Image(.check)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 40)
+                                .opacity(0)
                         }
                         
                         ZStack {
@@ -220,7 +288,7 @@ struct GameView: View {
                                 .resizable()
                                 .scaledToFit()
                             Color.deskBg
-                                .frame(width: 180, height: 180)
+                                .frame(width: UIScreen.main.bounds.width * 0.197, height: UIScreen.main.bounds.width * 0.197)
                             LazyVGrid(columns: columns, spacing: 0) {
                                 ForEach(viewModel.tiles) { tile in
                                     ZStack {
@@ -228,7 +296,7 @@ struct GameView: View {
                                             Image(.cell)
                                                 .resizable()
                                                 .scaledToFit()
-                                                .frame(width: DeviceInfo.shared.deviceType == .pad ? 110:60,height: DeviceInfo.shared.deviceType == .pad ? 110:60)
+                                                .frame(width:  UIScreen.main.bounds.width * 0.07,height: UIScreen.main.bounds.width * 0.07)
                                         }
                                         
                                         if let value = tile.value {
@@ -250,9 +318,10 @@ struct GameView: View {
                                         }
                                     }
                                 }
-                            }.frame(width: DeviceInfo.shared.deviceType == .pad ? 360 : 180, height: DeviceInfo.shared.deviceType == .pad ? 360 : 180)
-                        }.frame(width: DeviceInfo.shared.deviceType == .pad ? 400 : 200, height: DeviceInfo.shared.deviceType == .pad ? 400 : 200)
+                            }.frame(width: UIScreen.main.bounds.width * 0.197, height: UIScreen.main.bounds.width * 0.197)
+                        }.frame(width: UIScreen.main.bounds.width * 0.23, height: UIScreen.main.bounds.width * 0.23)
                             .disabled(finished)
+                        Spacer()
                     }
 
                 }
@@ -281,6 +350,9 @@ struct GameView: View {
                 unlockedBoards[3] = true
                 board3Finish = true
             } else if completedViewModelId == 3 {
+                if isNewRecord(currentTime: viewModel.elapsedTime, recordTime: viewModel.scoreTime) {
+                    viewModel.scoreTime = viewModel.elapsedTime
+                }
                 viewModel.isGameOver = true
                 viewModel.stopTimer()
             }
@@ -296,8 +368,38 @@ struct GameView: View {
             }
         }
     }
+    
+    func startAddingStars() {
+        isRunning = true
+        addStarWithRandomDelay()
+    }
+    
+    func stopAddingStars() {
+        timer?.invalidate()
+        timer = nil
+        isRunning = false
+    }
+    
+    func addStarWithRandomDelay() {
+        guard stars.count < 4 else { // Stop adding if max stars reached
+            stopAddingStars()
+            viewModel.isGameOver = true
+            youLose = true
+            viewModel.stopTimer()
+            
+            return
+        }
+        
+        // Generate a random time interval between 20 and 50 seconds
+        let randomDelay = TimeInterval(Int.random(in: 20...50))
+        
+        timer = Timer.scheduledTimer(withTimeInterval: randomDelay, repeats: false) { _ in
+            stars.append(stars.count + 1) // Add a star
+            addStarWithRandomDelay() // Schedule the next star
+        }
+    }
 }
 
 #Preview {
-    GameView(settingsVM: SettingsModel(), teamVM: TeamViewModel())
+    GameView(settingsVM: SettingsModel(), teamVM: TeamViewModel(), opponentIcon: "avatar1", opponentName: "Dias")
 }

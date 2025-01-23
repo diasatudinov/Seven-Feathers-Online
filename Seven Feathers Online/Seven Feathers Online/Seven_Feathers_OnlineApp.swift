@@ -11,7 +11,7 @@ import SwiftUI
 struct Seven_Feathers_OnlineApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
     }
 }

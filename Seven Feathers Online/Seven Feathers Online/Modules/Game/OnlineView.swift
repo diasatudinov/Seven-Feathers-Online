@@ -20,6 +20,9 @@ struct OnlineView: View {
     @State private var isOpponentFound = false
     @State private var isGame = false
     
+    @State private var names = ["John", "Jane", "Chris", "Alex", "Taylor", "Jordan", "Morgan", "Sydney", "Casey", "Jamie", "Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Garcia", "Rodriguez", "Martinez"]
+    @State private var name = ""
+    @State private var icon = "progress"
     var body: some View {
         ZStack {
             VStack {
@@ -47,11 +50,11 @@ struct OnlineView: View {
                     
                     Button {
                         let rndSeconds = Int.random(in: 3...5)
-                        print(rndSeconds)
+                        isStart = false
                         isSearcing = true
+                        isOpponentFound = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + Double(rndSeconds)) {
                             isSearcing = false
-                            isOpponentFound = true
                             isStart = false
                         }
                     } label: {
@@ -59,18 +62,14 @@ struct OnlineView: View {
                     }
                 }
             }
-            if isSearcing {
-                VStack {
-                    ZStack {
-                        Color.black.opacity(0.5).ignoresSafeArea()
-                        ProgressView()
-                            .tint(.white)
-                    }
-                }
-            }
             
             if isOpponentFound {
-                HStack {
+                ZStack {
+                    Image(.compBg)
+                        .resizable()
+                        .scaledToFit()
+                    
+                    HStack(spacing: 0) {
                     Spacer()
                     VStack {
                         
@@ -78,47 +77,67 @@ struct OnlineView: View {
                             Image(currentTeam.icon)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(height: 140)
+                                .frame(height: 60)
                             
                             Text(currentTeam.name)
-                                .font(.custom(Fonts.regular.rawValue, size: 24))
-                                .foregroundStyle(.white)
+                                .font(.custom(Fonts.regular.rawValue, size: 32))
+                                .foregroundStyle(.black)
                                 .textCase(.uppercase)
                         }
                     }
                     
                     Text("VS")
-                        .font(.custom(Fonts.regular.rawValue, size: 36))
-                        .foregroundStyle(.white)
+                        .font(.custom(Fonts.regular.rawValue, size: 32))
+                        .foregroundStyle(.black)
                         .textCase(.uppercase)
-                        .padding(50)
+                        .padding(25)
                     
                     VStack {
                         
                         if let randomTeam = teamVM.randomTeam() {
-                            Image(randomTeam.icon)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 140)
-                            
-                            Text(randomTeam.name)
-                                .font(.custom(Fonts.regular.rawValue, size: 24))
-                                .foregroundStyle(.white)
+                            if isSearcing {
+                                ZStack {
+                                    Image(.progress)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 60)
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                            } else {
+                                Image(icon)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 60)
+                                    .onAppear {
+                                        name = generateRandomName()
+                                        icon = randomTeam.icon
+                                    }
+                                    
+                            }
+                            Text(isSearcing ? "Find" : name)
+                                .font(.custom(Fonts.regular.rawValue, size: 32))
+                                .foregroundStyle(.black)
                                 .textCase(.uppercase)
+                                
                         }
                     }
                     Spacer()
-                }.onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                        isOpponentFound = false
-                        isGame = true
-                    }
-                    
                 }
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+                            isOpponentFound = false
+                            isGame = true
+                        }
+                        
+                    }
+                }.frame(width: DeviceInfo.shared.deviceType == .pad ? 800: 430)
             }
             
             if isGame {
-                GameView(settingsVM: settingsVM, teamVM: teamVM)
+                if let randomTeam = teamVM.randomTeam() {
+                    GameView(settingsVM: settingsVM, teamVM: teamVM, opponentIcon: icon, opponentName: name)
+                }
             }
             
             if isPause {
@@ -160,6 +179,13 @@ struct OnlineView: View {
             
         )
         
+    }
+    
+    private func generateRandomName() -> String {
+        // Combine random first and last names
+        let name = names.randomElement()!
+        self.name = name
+        return name
     }
 }
 

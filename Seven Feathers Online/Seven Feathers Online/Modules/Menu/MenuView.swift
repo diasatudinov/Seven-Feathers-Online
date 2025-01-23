@@ -20,9 +20,10 @@ struct MenuView: View {
     @State private var timeRemaining: String = "24:00"
     @State private var timerActive: Bool = false
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    
-    //    @StateObject var achivementsVM = AchievementsViewModel()
-    //    @StateObject var settingsVM = SettingsModel()
+   
+    @StateObject var trainingVM = TrainingViewModel()
+    @StateObject var gameVM = GameViewModel()
+    @StateObject var settingsVM = SettingsModel()
     @StateObject var teamVM = TeamViewModel()
     
     var body: some View {
@@ -149,11 +150,11 @@ struct MenuView: View {
                     if showBestScore {
                         ZStack {
                             Color.black.opacity(0.5).ignoresSafeArea()
-                            BestScoreView {
+                            BestScoreView(trainingTime: trainingVM.scoreTime, gameTime: gameVM.scoreTime, xBtnTap: {
                                 withAnimation {
                                     showBestScore = false
                                 }
-                            }
+                            })
                         }
                     }
                 }
@@ -180,16 +181,16 @@ struct MenuView: View {
                 //                    }
                 //                }
                 .fullScreenCover(isPresented: $showTrainig) {
-                    //                    DailyRouletteView()
+                    TrainingView(viewModel: trainingVM, settingsVM: settingsVM)
                 }
                 .fullScreenCover(isPresented: $showGame) {
-                    //                    GamesView(viewModel: achivementsVM, settingsVM: settingsVM)
+                    OnlineView(teamVM: teamVM, settingsVM: settingsVM)
                 }
                 .fullScreenCover(isPresented: $showHowToPlay) {
-                    //                    AchievementsView(viewModel: achivementsVM)
+                    RulesView()
                 }
                 .fullScreenCover(isPresented: $showSettings) {
-                    //                    SettingsView(settings: settingsVM)
+                    SettingsView(settings: settingsVM, teamVM: teamVM)
                     
                 }
                 

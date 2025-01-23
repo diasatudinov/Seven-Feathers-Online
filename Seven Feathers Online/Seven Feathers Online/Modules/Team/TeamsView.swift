@@ -36,10 +36,10 @@ struct TeamsView: View {
                             VStack {
                                 Spacer()
                                 Text("Name")
-                                    .font(.custom(Fonts.regular.rawValue, size: 36))
+                                    .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 70:36))
                                     .foregroundStyle(.white)
                                     .textCase(.uppercase)
-                                    .frame(height: 30)
+                                    .frame(height: DeviceInfo.shared.deviceType == .pad ? 60:30)
                                 
                                 ZStack {
                                     Image(.textFieldBg)
@@ -48,15 +48,15 @@ struct TeamsView: View {
                                         
                                     
                                     TextField("Nickname", text: $nickname)
-                                        .font(.custom(Fonts.regular.rawValue, size: 16))
+                                        .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 32:16))
                                         .bold()
                                         .padding(.horizontal)
                                         .foregroundStyle(.white)
                                     
                                     
-                                }.padding(.horizontal, 30)
+                                }.padding(.horizontal, DeviceInfo.shared.deviceType == .pad ? 60:30)
                                 
-                                LazyVGrid(columns: columns, spacing: 16) {
+                                LazyVGrid(columns: columns, spacing: DeviceInfo.shared.deviceType == .pad ? 32:16) {
                                     ForEach(viewModel.teams.indices, id: \.self) { index in
                                         
                                         Button {
@@ -75,11 +75,11 @@ struct TeamsView: View {
                                         }
                                         
                                     }
-                                }.padding(.bottom).padding(.horizontal, 35)
+                                }.padding(.bottom).padding(.horizontal, DeviceInfo.shared.deviceType == .pad ? 70:35)
                         
                                 Spacer()
                             }
-                        }.frame(width: 213, height: 250)
+                        }.frame(width: DeviceInfo.shared.deviceType == .pad ? 400:213, height: DeviceInfo.shared.deviceType == .pad ? 500:250)
                         
                         Button {
                             if let team = currentTeam, !nickname.isEmpty {
@@ -91,11 +91,11 @@ struct TeamsView: View {
                                     .resizable()
                                     .scaledToFit()
                                 Text("Get Started")
-                                    .font(.custom(Fonts.regular.rawValue, size: 36))
+                                    .font(.custom(Fonts.regular.rawValue, size: DeviceInfo.shared.deviceType == .pad ? 70:36))
                                     .foregroundStyle(.black)
                                     .textCase(.uppercase)
                             }
-                            .frame(height: 80)
+                            .frame(height: DeviceInfo.shared.deviceType == .pad ? 160:80)
                         }
                         Spacer()
                     }
@@ -117,9 +117,9 @@ struct TeamsView: View {
     @ViewBuilder func achivementView(image: String, header: String, imageHeight: CGFloat, team: Team) -> some View {
         
         
-        HStack(spacing: 20) {
+        HStack(spacing: DeviceInfo.shared.deviceType == .pad ? 40:20) {
             
-            VStack(alignment: .center, spacing: 10) {
+            VStack(alignment: .center, spacing: DeviceInfo.shared.deviceType == .pad ? 20:10) {
                 
                 
                 

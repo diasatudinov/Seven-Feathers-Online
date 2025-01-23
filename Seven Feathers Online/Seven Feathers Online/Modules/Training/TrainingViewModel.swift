@@ -11,7 +11,6 @@ import Combine
 
 class TrainingViewModel: ObservableObject {
     @Published var tiles: [Tile] = []
-    @Published var isOver = false
     @Published var isWin = false
     let gridSize = 3
     
@@ -21,7 +20,7 @@ class TrainingViewModel: ObservableObject {
     private var pausedTime: TimeInterval = 0
     private var isTimerRunning = false
     
-    @AppStorage("lastScoreTime") var scoreTime: String = "00:00"
+    @AppStorage("lastTrainingScoreTime") var scoreTime: String = "00:00"
     
     init() {
         resetGame()
@@ -75,12 +74,9 @@ class TrainingViewModel: ObservableObject {
                 if isGameCompleted() {
                     
                     stopTimer()
-                    
+                    isWin = true
                     if isNewRecord(currentTime: elapsedTime, recordTime: scoreTime) {
-                        isOver = true
                         scoreTime = elapsedTime
-                    } else {
-                        isWin = true
                     }
                 }
             }
@@ -88,13 +84,36 @@ class TrainingViewModel: ObservableObject {
     }
     
     func isGameCompleted() -> Bool {
-        // The tiles should be in order from 1 to 15, with the empty cell at the end
         for i in 0..<7 {
             if tiles[i].value != i + 1 {
                 return false
             }
         }
         return tiles[7].value == nil && tiles[8].value == nil
+    }
+    
+    func progressBar() -> String {
+        var count = 0
+
+        // Проверяем элементы по парам
+        for i in stride(from: 0, to: tiles.count - 1, by: 2) {
+            // Проверяем, собраны ли текущая пара элементов в правильной последовательности
+            let isFirstCorrect = tiles[i].value == i + 1
+            let isSecondCorrect = i + 1 < tiles.count && tiles[i + 1].value == i + 2
+
+            if isFirstCorrect && isSecondCorrect {
+                count += 1
+            } else {
+                break // Прерываем проверку, если пара не собрана
+            }
+            
+        }
+        
+        if count == 3 && tiles[6].value == 7 {
+            count = 4
+        }
+        
+        return "progress\(count)"
     }
     
     func startTimer() {
