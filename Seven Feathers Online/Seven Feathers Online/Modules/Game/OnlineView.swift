@@ -145,26 +145,26 @@ struct OnlineView: View {
                     
                     Color.black.opacity(0.5).ignoresSafeArea()
                     
-//                    Image(.pauseBgTL)
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
-                    VStack {
+                    Image(.pauseBg)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: DeviceInfo.shared.deviceType == .pad ? 500:270)
+                    VStack(spacing: 5) {
                         Spacer()
                         Button {
                             isPause = false
                         } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "Resume", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
+                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 140:72, text: "Resume", textSize: DeviceInfo.shared.deviceType == .pad ? 64:32)
                             
                         }
                         
                         Button {
                             presentationMode.wrappedValue.dismiss()
                         } label: {
-                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:38, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 48:24)
+                            TextBg(height: DeviceInfo.shared.deviceType == .pad ? 140:72, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 64:32)
                             
                         }
-                    }.padding(.bottom, DeviceInfo.shared.deviceType == .pad ? 60:30)
+                    }
                         .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
                 }
             }

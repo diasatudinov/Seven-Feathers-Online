@@ -206,7 +206,8 @@ struct GameView: View {
                             TextBg(height: DeviceInfo.shared.deviceType == .pad ? 80:60, text: "Menu", textSize: DeviceInfo.shared.deviceType == .pad ? 48:32)
                             
                         }
-                    }
+                        Spacer()
+                    }.padding(.top)
                         .frame(height: DeviceInfo.shared.deviceType == .pad ? 400:195)
                 }
             }
