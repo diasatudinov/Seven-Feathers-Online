@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		2B5EB2862D3E53E80003C297 /* Seven Feathers Online */ = {
+		2B5EB8AD2D4265810003C297 /* Seven Feathers Online */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Seven Feathers Online";
 			sourceTree = "<group>";
@@ -32,7 +32,7 @@
 		2B5EB27B2D3E53E80003C297 = {
 			isa = PBXGroup;
 			children = (
-				2B5EB2862D3E53E80003C297 /* Seven Feathers Online */,
+				2B5EB8AD2D4265810003C297 /* Seven Feathers Online */,
 				2B5EB2852D3E53E80003C297 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -61,7 +61,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				2B5EB2862D3E53E80003C297 /* Seven Feathers Online */,
+				2B5EB8AD2D4265810003C297 /* Seven Feathers Online */,
 			);
 			name = "Seven Feathers Online";
 			packageProductDependencies = (
