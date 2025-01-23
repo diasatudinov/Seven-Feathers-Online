@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct Seven_Feathers_OnlineApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
         WindowGroup {
             RootView()
