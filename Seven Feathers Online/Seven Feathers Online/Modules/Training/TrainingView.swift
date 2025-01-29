@@ -77,7 +77,7 @@ struct TrainingView: View {
                         .resizable()
                         .scaledToFit()
                     Color.deskBg
-                        .frame(width: 240, height: 240)
+                        .frame(width: DeviceInfo.shared.deviceType == .pad ? 480:240, height: DeviceInfo.shared.deviceType == .pad ? 480:240)
                     LazyVGrid(columns: columns, spacing: 0) {
                         ForEach(viewModel.tiles) { tile in
                             ZStack {
